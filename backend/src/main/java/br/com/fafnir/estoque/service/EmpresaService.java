@@ -1,14 +1,14 @@
 package br.com.fafnir.estoque.service;
 
-import br.com.fafnir.estoque.dto.EmpresaRecordDto;
+import br.com.fafnir.estoque.dto.EmpresaRequestDto;
 import br.com.fafnir.estoque.model.EmpresaModel;
 import br.com.fafnir.estoque.model.SituacaoEmpresa;
 import br.com.fafnir.estoque.repository.EmpresaRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -24,19 +24,21 @@ public class EmpresaService {
         return empresaRepository.findAll();
     }
 
-    public Optional<EmpresaModel> findById(UUID id) {
-        return empresaRepository.findById(id);
+    public EmpresaModel findById(UUID id) {
+        return empresaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Empresa não encontrada."));
     }
 
-    public EmpresaModel save(EmpresaRecordDto empresaRecordDto) {
-        var empresaModel = new EmpresaModel();
-        BeanUtils.copyProperties(empresaRecordDto, empresaModel);
+    public EmpresaModel save(EmpresaRequestDto empresaRequestDto) {
+        var empresaModel = empresaRequestDto.toModel();
         empresaModel.setSituacao(SituacaoEmpresa.ATIVA);
+        empresaModel.setEndereco(empresaRequestDto.endereco().toModel());
         return empresaRepository.save(empresaModel);
     }
 
-    public EmpresaModel update(EmpresaModel empresaModel, EmpresaRecordDto empresaRecordDto) {
-        BeanUtils.copyProperties(empresaRecordDto, empresaModel);
+    public EmpresaModel update(EmpresaModel empresaModel, EmpresaRequestDto empresaRequestDto) {
+        BeanUtils.copyProperties(empresaRequestDto, empresaModel);
+        empresaModel.setEndereco(empresaRequestDto.endereco().toModel());
         return empresaRepository.save(empresaModel);
     }
 

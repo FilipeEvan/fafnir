@@ -24,7 +24,7 @@ public class EmpresaModel implements Serializable {
     @Column(nullable = false, length = 20)
     private SituacaoEmpresa situacao;
 
-    @Column(nullable = false, unique = true, length = 14)
+    @Column(nullable = false, length = 14)
     private String documento;
 
     @Column(nullable = false, length = 150)
@@ -35,6 +35,9 @@ public class EmpresaModel implements Serializable {
 
     @Column(nullable = false, length = 13)
     private String telefone;
+
+    @Embedded
+    private Endereco endereco;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -93,6 +96,14 @@ public class EmpresaModel implements Serializable {
 
     public void setTelefone(String telefone) {
         this.telefone = telefone;
+    }
+
+    public Endereco getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(Endereco endereco) {
+        this.endereco = endereco;
     }
 
     public LocalDateTime getCriadoEm() {
