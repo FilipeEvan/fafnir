@@ -1,6 +1,6 @@
-package br.com.fafnir.estoque.dto;
+package br.com.fafnir.estoque.empresa.dto;
 
-import br.com.fafnir.estoque.model.Endereco;
+import br.com.fafnir.estoque.empresa.model.Endereco;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.beans.BeanUtils;

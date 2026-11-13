@@ -1,9 +1,9 @@
-package br.com.fafnir.estoque.controller;
+package br.com.fafnir.estoque.empresa.controller;
 
-import br.com.fafnir.estoque.dto.EmpresaRequestDto;
-import br.com.fafnir.estoque.dto.EmpresaResponseDto;
-import br.com.fafnir.estoque.model.EmpresaModel;
-import br.com.fafnir.estoque.service.EmpresaService;
+import br.com.fafnir.estoque.empresa.dto.EmpresaRequestDto;
+import br.com.fafnir.estoque.empresa.dto.EmpresaResponseDto;
+import br.com.fafnir.estoque.empresa.model.EmpresaModel;
+import br.com.fafnir.estoque.empresa.service.EmpresaService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

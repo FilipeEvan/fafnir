@@ -1,6 +1,6 @@
-package br.com.fafnir.estoque.dto;
+package br.com.fafnir.estoque.empresa.dto;
 
-import br.com.fafnir.estoque.model.EmpresaModel;
+import br.com.fafnir.estoque.empresa.model.EmpresaModel;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

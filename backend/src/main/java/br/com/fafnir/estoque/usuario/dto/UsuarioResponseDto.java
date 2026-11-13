@@ -1,0 +1,45 @@
+package br.com.fafnir.estoque.usuario.dto;
+
+import br.com.fafnir.estoque.empresa.dto.EmpresaResponseDto;
+import br.com.fafnir.estoque.empresa.dto.EnderecoResponseDto;
+import br.com.fafnir.estoque.empresa.model.EmpresaModel;
+import br.com.fafnir.estoque.usuario.model.UsuarioModel;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+public record UsuarioResponseDto(
+
+        UUID id,
+
+        UUID empresaId,
+
+        String nomeFantasia,
+
+        String situacao,
+
+        String nomeCompleto,
+
+        String email,
+
+        LocalDateTime criadoEm,
+
+        LocalDateTime atualizadoEm) {
+
+        public static UsuarioResponseDto fromModel(UsuarioModel usuarioModel){
+            if (usuarioModel == null) {
+                return null;
+            }
+
+            return new UsuarioResponseDto(
+                    usuarioModel.getId(),
+                    usuarioModel.getEmpresa().getId(),
+                    usuarioModel.getEmpresa().getNomeFantasia(),
+                    usuarioModel.getSituacao().name(),
+                    usuarioModel.getNomeCompleto(),
+                    usuarioModel.getEmail(),
+                    usuarioModel.getCriadoEm(),
+                    usuarioModel.getAtualizadoEm()
+            );
+        }
+}

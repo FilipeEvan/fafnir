@@ -1,9 +1,9 @@
-package br.com.fafnir.estoque.service;
+package br.com.fafnir.estoque.empresa.service;
 
-import br.com.fafnir.estoque.dto.EmpresaRequestDto;
-import br.com.fafnir.estoque.model.EmpresaModel;
-import br.com.fafnir.estoque.model.SituacaoEmpresa;
-import br.com.fafnir.estoque.repository.EmpresaRepository;
+import br.com.fafnir.estoque.empresa.dto.EmpresaRequestDto;
+import br.com.fafnir.estoque.empresa.model.EmpresaModel;
+import br.com.fafnir.estoque.empresa.model.SituacaoEmpresa;
+import br.com.fafnir.estoque.empresa.repository.EmpresaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;

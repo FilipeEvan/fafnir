@@ -1,4 +1,4 @@
-package br.com.fafnir.estoque.model;
+package br.com.fafnir.estoque.empresa.model;
 
 public enum SituacaoEmpresa {
     NULA,

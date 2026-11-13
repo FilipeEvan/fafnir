@@ -41,10 +41,13 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiError> methodArgumentTypeMismatchExceptionHandler(MethodArgumentTypeMismatchException exception) {
+        String message = String.format("O parâmetro da URL deve estar no formato %s.",
+                exception.getRequiredType().getSimpleName());
+
         ApiError apiError = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.name(),
-                "O parâmetro da URL é inválido."
+                message
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
     }
@@ -54,7 +57,7 @@ public class RestExceptionHandler {
         ApiError apiError = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.name(),
-                "O formato do JSON é inválido."
+                "O corpo da requisição deve estar no formato JSON."
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
     }

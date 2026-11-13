@@ -1,6 +1,6 @@
-package br.com.fafnir.estoque.repository;
+package br.com.fafnir.estoque.empresa.repository;
 
-import br.com.fafnir.estoque.model.EmpresaModel;
+import br.com.fafnir.estoque.empresa.model.EmpresaModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

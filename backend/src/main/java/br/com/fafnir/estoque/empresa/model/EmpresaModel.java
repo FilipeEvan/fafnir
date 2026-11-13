@@ -1,4 +1,4 @@
-package br.com.fafnir.estoque.model;
+package br.com.fafnir.estoque.empresa.model;
 
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
