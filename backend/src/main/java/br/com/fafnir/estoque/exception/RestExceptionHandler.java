@@ -1,23 +1,24 @@
 package br.com.fafnir.estoque.exception;
 
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class RestExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException exception) {
-        Map<String, String>  errors = new HashMap<>();
+        Map<String, String> errors = new HashMap<>();
         exception.getBindingResult().getFieldErrors().forEach(error ->
                 errors.putIfAbsent(error.getField(), error.getDefaultMessage())
         );
@@ -41,8 +42,14 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiError> methodArgumentTypeMismatchExceptionHandler(MethodArgumentTypeMismatchException exception) {
-        String message = String.format("O parâmetro da URL deve estar no formato %s.",
-                exception.getRequiredType().getSimpleName());
+        String requiredType = exception.getRequiredType() != null
+                ? exception.getRequiredType().getSimpleName()
+                : "válido";
+
+        String message = String.format(
+                "O parâmetro '%s' deve estar no formato %s.",
+                exception.getName(),
+                requiredType);
 
         ApiError apiError = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
@@ -57,8 +64,18 @@ public class RestExceptionHandler {
         ApiError apiError = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.name(),
-                "O corpo da requisição deve estar no formato JSON."
+                "Formato de requisição inválido. O corpo da requisição deve estar no formato JSON."
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+    }
+
+    @ExceptionHandler(EntityExistsException.class)
+    public ResponseEntity<ApiError> entityExistsExceptionHandler(EntityExistsException exception) {
+        ApiError apiError = new ApiError(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.name(),
+                exception.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
     }
 }
