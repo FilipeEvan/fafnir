@@ -29,21 +29,18 @@ public class EmpresaController {
                                                                    @PageableDefault(page = 0, size = 10, sort = "nomeFantasia") Pageable pageable) {
         Page<EmpresaResponseDto> empresaResponseDtos = empresaService.findAll(empresaFilterDto, pageable)
                 .map(EmpresaResponseDto::fromModel);
-
         return ResponseEntity.status(HttpStatus.OK).body(empresaResponseDtos);
     }
 
     @GetMapping(value = "/{id}", version = "v1")
     public ResponseEntity<EmpresaResponseDto> getOneEmpresa(@PathVariable(value = "id") UUID id) {
         EmpresaResponseDto empresaResponseDto = EmpresaResponseDto.fromModel(empresaService.findById(id));
-
         return ResponseEntity.status(HttpStatus.OK).body(empresaResponseDto);
     }
 
     @PostMapping(version = "v1")
     public ResponseEntity<EmpresaResponseDto> saveEmpresa(@RequestBody @Valid EmpresaRequestDto empresaRequestDto) {
         EmpresaResponseDto empresaResponseDto = EmpresaResponseDto.fromModel(empresaService.save(empresaRequestDto));
-
         return ResponseEntity.status(HttpStatus.CREATED).body(empresaResponseDto);
     }
 
@@ -51,7 +48,6 @@ public class EmpresaController {
     public ResponseEntity<EmpresaResponseDto> updateEmpresa(@PathVariable(value = "id") UUID id,
                                                 @RequestBody @Valid EmpresaRequestDto empresaRequestDto) {
         EmpresaResponseDto empresaResponseDto = EmpresaResponseDto.fromModel(empresaService.update(id, empresaRequestDto));
-
         return ResponseEntity.status(HttpStatus.OK).body(empresaResponseDto);
     }
 

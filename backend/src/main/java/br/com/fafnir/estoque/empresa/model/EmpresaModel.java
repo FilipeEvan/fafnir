@@ -31,7 +31,7 @@ public class EmpresaModel implements Serializable {
     @Column(nullable = false, length = 150)
     private String razaoSocial;
 
-    @Column(nullable = true, length = 55)
+    @Column(length = 55)
     private String nomeFantasia;
 
     @Column(nullable = false, length = 13)

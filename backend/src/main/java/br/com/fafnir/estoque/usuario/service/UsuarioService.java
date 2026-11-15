@@ -49,7 +49,7 @@ public class UsuarioService {
     public UsuarioModel save(UsuarioRequestDto usuarioRequestDto) {
         EmpresaModel empresaModel = empresaService.findById(usuarioRequestDto.empresaId());
 
-        if (usuarioRepository.existsByEmail(usuarioRequestDto.email())) {
+        if (usuarioRepository.existsByEmailIgnoreCase(usuarioRequestDto.email())) {
             throw new EntityExistsException("E-mail já cadastrado.");
         }
 
@@ -65,11 +65,12 @@ public class UsuarioService {
     public UsuarioModel update(UUID id, UsuarioRequestDto usuarioRequestDto) {
         UsuarioModel usuarioModel = findById(id);
 
-        if (usuarioRepository.existsByEmailAndIdNot(usuarioRequestDto.email(), id)) {
+        if (usuarioRepository.existsByEmailIgnoreCaseAndIdNot(usuarioRequestDto.email(), id)) {
             throw new EntityExistsException("E-mail já cadastrado.");
         }
 
-        EmpresaModel  empresaModel = empresaService.findById(usuarioRequestDto.empresaId());
+        EmpresaModel empresaModel = empresaService.findById(usuarioRequestDto.empresaId());
+
         BeanUtils.copyProperties(usuarioRequestDto, usuarioModel);
         usuarioModel.setEmpresa(empresaModel);
         usuarioModel.setSenha(passwordEncoder.encode(usuarioRequestDto.senha()));

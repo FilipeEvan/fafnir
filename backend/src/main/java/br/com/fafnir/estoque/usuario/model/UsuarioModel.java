@@ -28,6 +28,10 @@ public class UsuarioModel implements Serializable {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
+    private PapelUsuario papel;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private SituacaoUsuario situacao;
 
     @Column(nullable = false, length = 150)
@@ -64,6 +68,14 @@ public class UsuarioModel implements Serializable {
 
     public void setEmpresa(EmpresaModel empresa) {
         this.empresa = empresa;
+    }
+
+    public PapelUsuario getPapel() {
+        return papel;
+    }
+
+    public void setPapel(PapelUsuario papel) {
+        this.papel = papel;
     }
 
     public SituacaoUsuario getSituacao() {

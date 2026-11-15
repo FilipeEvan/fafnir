@@ -29,7 +29,6 @@ public class ProdutoController {
                                                                    @PageableDefault(page = 0, size = 10, sort = "nome") Pageable pageable) {
         Page<ProdutoResponseDto> produtoResponseDtos = produtoService.findAll(produtoFilterDto, pageable)
                 .map(ProdutoResponseDto::fromModel);
-
         return ResponseEntity.status(HttpStatus.OK).body(produtoResponseDtos);
     }
 

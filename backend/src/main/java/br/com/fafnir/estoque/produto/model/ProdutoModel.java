@@ -17,6 +17,8 @@ import java.util.UUID;
 @Table(name = "tb_produtos")
 public class ProdutoModel implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
@@ -28,10 +30,10 @@ public class ProdutoModel implements Serializable {
     @Column(nullable = false, length = 150)
     private String nome;
 
-    @Column(nullable = true, length = 100)
+    @Column(length = 100)
     private String marca ;
 
-    @Column(nullable = false, precision = 10, scale = 3)
+    @Column(nullable = false, precision = 9, scale = 3)
     private BigDecimal peso;
 
     @Enumerated(EnumType.STRING)

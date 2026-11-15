@@ -9,6 +9,8 @@ public record UsuarioResponseDto(
 
         UUID id,
 
+        String papel,
+
         String situacao,
 
         String nomeCompleto,
@@ -26,6 +28,7 @@ public record UsuarioResponseDto(
 
             return new UsuarioResponseDto(
                     usuarioModel.getId(),
+                    usuarioModel.getPapel().name(),
                     usuarioModel.getSituacao().name(),
                     usuarioModel.getNomeCompleto(),
                     usuarioModel.getEmail(),

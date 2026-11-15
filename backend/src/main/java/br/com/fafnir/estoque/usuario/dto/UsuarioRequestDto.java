@@ -1,5 +1,6 @@
 package br.com.fafnir.estoque.usuario.dto;
 
+import br.com.fafnir.estoque.usuario.model.PapelUsuario;
 import br.com.fafnir.estoque.usuario.model.UsuarioModel;
 import jakarta.validation.constraints.*;
 import org.springframework.beans.BeanUtils;
@@ -10,6 +11,9 @@ public record UsuarioRequestDto(
 
         @NotNull(message = "A empresa é obrigatória.")
         UUID empresaId,
+
+        @NotNull(message = "O papel de usuário é obrigatório.")
+        PapelUsuario papel,
 
         @NotBlank(message = "O nome completo é obrigatório.")
         @Size(max = 150, message = "O nome completo deve ter no máximo 150 caracteres.")

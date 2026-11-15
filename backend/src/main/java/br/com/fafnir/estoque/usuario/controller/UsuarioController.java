@@ -29,7 +29,6 @@ public class UsuarioController {
                                                                    @PageableDefault(page = 0, size = 10, sort = "nomeCompleto") Pageable pageable) {
         Page<UsuarioResponseDto> usuarioResponseDtos = usuarioService.findAll(usuarioFilterDto, pageable)
                 .map(UsuarioResponseDto::fromModel);
-
         return ResponseEntity.status(HttpStatus.OK).body(usuarioResponseDtos);
     }
 

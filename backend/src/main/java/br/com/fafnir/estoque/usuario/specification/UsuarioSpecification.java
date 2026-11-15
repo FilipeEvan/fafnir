@@ -1,6 +1,7 @@
 package br.com.fafnir.estoque.usuario.specification;
 
 import br.com.fafnir.estoque.usuario.dto.UsuarioFilterDto;
+import br.com.fafnir.estoque.usuario.model.PapelUsuario;
 import br.com.fafnir.estoque.usuario.model.SituacaoUsuario;
 import br.com.fafnir.estoque.usuario.model.UsuarioModel;
 import org.springframework.data.jpa.domain.Specification;
@@ -15,9 +16,25 @@ public class UsuarioSpecification {
             return Specification.unrestricted();
         }
         return Specification.<UsuarioModel>unrestricted()
+                .and(papelEquals(usuarioFilterDto.papel()))
                 .and(situacaoEquals(usuarioFilterDto.situacao()))
-                .and(nomeCompletoContains((usuarioFilterDto.nomeCompleto())))
+                .and(nomeCompletoContains(usuarioFilterDto.nomeCompleto()))
                 .and(emailContains(usuarioFilterDto.email()));
+    }
+
+    private static  Specification<UsuarioModel> papelEquals(String papel) {
+        return (root, query, cb) -> {
+            if (papel == null || papel.isBlank()) {
+                return null;
+            }
+            try {
+                PapelUsuario papelUsuario = PapelUsuario.valueOf(papel.toUpperCase());
+                return cb.equal(root.get("papel"), papelUsuario);
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+
+        };
     }
 
     private static  Specification<UsuarioModel> situacaoEquals(String situacao) {
