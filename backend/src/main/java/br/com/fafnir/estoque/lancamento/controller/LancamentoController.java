@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -26,6 +27,7 @@ public class LancamentoController {
     }
 
     @GetMapping(version = "v1")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMINISTRADOR', 'SCOPE_EDITOR', 'SCOPE_LEITOR')")
     public ResponseEntity<Page<LancamentoResponseDto>> getAllLancamentos(LancamentoFilterDto lancamentoFilterDto,
                                                                          @PageableDefault(page = 0, size = 10, sort = "criadoEm", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<LancamentoResponseDto> lancamentoResponseDtos = lancamentoService.findAll(lancamentoFilterDto, pageable)
@@ -34,18 +36,21 @@ public class LancamentoController {
     }
 
     @GetMapping(value = "/{id}", version = "v1")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMINISTRADOR', 'SCOPE_EDITOR', 'SCOPE_LEITOR')")
     public ResponseEntity<LancamentoResponseDto> getOneLancamento(@PathVariable(value = "id") UUID id) {
         LancamentoResponseDto lancamentoResponseDto = LancamentoResponseDto.fromModel(lancamentoService.findById(id));
         return ResponseEntity.status(HttpStatus.OK).body(lancamentoResponseDto);
     }
 
     @PostMapping(version = "v1")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMINISTRADOR', 'SCOPE_EDITOR')")
     public ResponseEntity<LancamentoResponseDto> saveLancamento(@RequestBody @Valid LancamentoRequestDto lancamentoRequestDto) {
         LancamentoResponseDto lancamentoResponseDto = LancamentoResponseDto.fromModel(lancamentoService.save(lancamentoRequestDto));
         return ResponseEntity.status(HttpStatus.CREATED).body(lancamentoResponseDto);
     }
 
     @PutMapping(value = "/{id}", version = "v1")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMINISTRADOR', 'SCOPE_EDITOR')")
     public ResponseEntity<LancamentoResponseDto> updateLancamento(@PathVariable(value = "id") UUID id,
                                                                   @RequestBody @Valid LancamentoRequestDto lancamentoRequestDto) {
         LancamentoResponseDto lancamentoResponseDto = LancamentoResponseDto.fromModel(lancamentoService.update(id, lancamentoRequestDto));
@@ -53,6 +58,7 @@ public class LancamentoController {
     }
 
     @DeleteMapping(value = "/{id}", version = "v1")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMINISTRADOR', 'SCOPE_EDITOR')")
     public ResponseEntity<Void> deleteLancamento(@PathVariable(value = "id") UUID id) {
         lancamentoService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

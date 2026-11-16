@@ -34,3 +34,6 @@ build/
 
 ### Variáveis de Ambiente ###
 .env
+
+### Certificados e Chaves ###
+*.pem

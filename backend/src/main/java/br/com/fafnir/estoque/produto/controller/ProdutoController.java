@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -25,6 +26,7 @@ public class ProdutoController {
     }
 
     @GetMapping(version = "v1")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMINISTRADOR', 'SCOPE_EDITOR', 'SCOPE_LEITOR')")
     public ResponseEntity<Page<ProdutoResponseDto>> getAllProdutos(ProdutoFilterDto produtoFilterDto,
                                                                    @PageableDefault(page = 0, size = 10, sort = "nome") Pageable pageable) {
         Page<ProdutoResponseDto> produtoResponseDtos = produtoService.findAll(produtoFilterDto, pageable)
@@ -33,18 +35,21 @@ public class ProdutoController {
     }
 
     @GetMapping(value = "/{id}", version = "v1")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMINISTRADOR', 'SCOPE_EDITOR', 'SCOPE_LEITOR')")
     public ResponseEntity<ProdutoResponseDto> getOneProduto(@PathVariable(value = "id") UUID id) {
         ProdutoResponseDto produtoResponseDto = ProdutoResponseDto.fromModel(produtoService.findById(id));
         return ResponseEntity.status(HttpStatus.OK).body(produtoResponseDto);
     }
 
     @PostMapping(version = "v1")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMINISTRADOR', 'SCOPE_EDITOR')")
     public ResponseEntity<ProdutoResponseDto> saveProduto(@RequestBody @Valid ProdutoRequestDto produtoRequestDto) {
         ProdutoResponseDto produtoResponseDto = ProdutoResponseDto.fromModel(produtoService.save(produtoRequestDto));
         return ResponseEntity.status(HttpStatus.CREATED).body(produtoResponseDto);
     }
 
     @PutMapping(value = "/{id}", version = "v1")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMINISTRADOR', 'SCOPE_EDITOR')")
     public ResponseEntity<ProdutoResponseDto> updateProduto(@PathVariable(value = "id") UUID id,
                                                             @RequestBody @Valid ProdutoRequestDto produtoRequestDto) {
         ProdutoResponseDto produtoResponseDto = ProdutoResponseDto.fromModel(produtoService.update(id, produtoRequestDto));
@@ -52,6 +57,7 @@ public class ProdutoController {
     }
 
     @DeleteMapping(value = "/{id}", version = "v1")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMINISTRADOR', 'SCOPE_EDITOR')")
     public ResponseEntity<Void> deleteProduto(@PathVariable(value = "id") UUID id) {
         produtoService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

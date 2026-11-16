@@ -1,5 +1,6 @@
 package br.com.fafnir.estoque.dispositivo.specification;
 
+import br.com.fafnir.estoque.config.TenantContext;
 import br.com.fafnir.estoque.dispositivo.dto.DispositivoFilterDto;
 import br.com.fafnir.estoque.dispositivo.model.DispositivoModel;
 import br.com.fafnir.estoque.dispositivo.model.StatusDispositivo;
@@ -13,13 +14,26 @@ public class DispositivoSpecification {
     }
 
     public static Specification<DispositivoModel> getSpecification(DispositivoFilterDto dispositivoFilterDto) {
-        if (dispositivoFilterDto == null) {
-            return Specification.unrestricted();
+        Specification<DispositivoModel> specification = Specification.<DispositivoModel>unrestricted()
+                .and(tenantEquals());
+
+        if (dispositivoFilterDto != null) {
+            specification = specification
+                    .and(statusEquals(dispositivoFilterDto.status()))
+                    .and(identificadorContains(dispositivoFilterDto.identificador()))
+                    .and(produtoIdEquals(dispositivoFilterDto.produtoId()));
         }
-        return Specification.<DispositivoModel>unrestricted()
-                .and(statusEquals(dispositivoFilterDto.status()))
-                .and(identificadorContains(dispositivoFilterDto.identificador()))
-                .and(produtoIdEquals(dispositivoFilterDto.produtoId()));
+
+        return specification;
+    }
+
+    private static Specification<DispositivoModel> tenantEquals() {
+        return (root, query, cb) -> {
+            if (TenantContext.isSuperAdmin()) {
+                return null;
+            }
+            return cb.equal(root.get("empresa").get("id"), TenantContext.getTenantId());
+        };
     }
 
     private static Specification<DispositivoModel> statusEquals(String status) {

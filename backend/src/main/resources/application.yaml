@@ -17,3 +17,10 @@ spring:
         format_sql: true
     open-in-view: false
     show-sql: true
+jwt:
+  private:
+    key: ${JWT_PRIVATE_KEY}
+  public:
+    key: ${JWT_PUBLIC_KEY}
+admin:
+  password: ${ADMIN_PASSWORD}

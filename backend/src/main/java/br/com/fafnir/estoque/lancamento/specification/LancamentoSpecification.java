@@ -1,8 +1,10 @@
 package br.com.fafnir.estoque.lancamento.specification;
 
+import br.com.fafnir.estoque.config.TenantContext;
 import br.com.fafnir.estoque.lancamento.dto.LancamentoFilterDto;
 import br.com.fafnir.estoque.lancamento.model.LancamentoModel;
 import br.com.fafnir.estoque.lancamento.model.TipoLancamento;
+import br.com.fafnir.estoque.usuario.model.UsuarioModel;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.UUID;
@@ -13,15 +15,28 @@ public class LancamentoSpecification {
     }
 
     public static Specification<LancamentoModel> getSpecification(LancamentoFilterDto lancamentoFilterDto) {
-        if (lancamentoFilterDto == null) {
-            return Specification.unrestricted();
+        Specification<LancamentoModel> specification = Specification.<LancamentoModel>unrestricted()
+                .and(tenantEquals());
+
+        if (lancamentoFilterDto != null) {
+            specification = specification
+                    .and(produtoIdEquals(lancamentoFilterDto.produtoId()))
+                    .and(dispositivoIdEquals(lancamentoFilterDto.dispositivoId()))
+                    .and(usuarioIdEquals(lancamentoFilterDto.usuarioId()))
+                    .and(tipoEquals(lancamentoFilterDto.tipo()))
+                    .and(notaFiscalContains(lancamentoFilterDto.notaFiscal()));
         }
-        return Specification.<LancamentoModel>unrestricted()
-                .and(produtoIdEquals(lancamentoFilterDto.produtoId()))
-                .and(dispositivoIdEquals(lancamentoFilterDto.dispositivoId()))
-                .and(usuarioIdEquals(lancamentoFilterDto.usuarioId()))
-                .and(tipoEquals(lancamentoFilterDto.tipo()))
-                .and(notaFiscalContains(lancamentoFilterDto.notaFiscal()));
+
+        return specification;
+    }
+
+    private static Specification<LancamentoModel> tenantEquals() {
+        return (root, query, cb) -> {
+            if (TenantContext.isSuperAdmin()) {
+                return null;
+            }
+            return cb.equal(root.get("empresa").get("id"), TenantContext.getTenantId());
+        };
     }
 
     private static Specification<LancamentoModel> produtoIdEquals(UUID produtoId) {

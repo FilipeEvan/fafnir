@@ -5,6 +5,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -77,5 +79,29 @@ public class RestExceptionHandler {
                 exception.getMessage()
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiError> badCredentialsExceptionHandler(BadCredentialsException exception) {
+        ApiError apiError = new ApiError(
+                HttpStatus.UNAUTHORIZED.value(),
+                HttpStatus.UNAUTHORIZED.name(),
+                exception.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiError> accessDeniedExceptionHandler(AccessDeniedException exception) {
+        String message = "Access Denied".equals(exception.getMessage())
+                ? "Acesso negado."
+                : exception.getMessage();
+
+        ApiError apiError = new ApiError(
+                HttpStatus.FORBIDDEN.value(),
+                HttpStatus.FORBIDDEN.name(),
+                message
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiError);
     }
 }

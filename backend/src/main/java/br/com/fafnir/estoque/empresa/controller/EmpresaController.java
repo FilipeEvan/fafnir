@@ -10,12 +10,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/empresas")
+@PreAuthorize("hasAuthority('SCOPE_ADMINISTRADOR')")
 public class EmpresaController {
 
     private final EmpresaService empresaService;
@@ -25,6 +27,7 @@ public class EmpresaController {
     }
 
     @GetMapping(version = "v1")
+
     public ResponseEntity<Page<EmpresaResponseDto>> getAllEmpresas(EmpresaFilterDto empresaFilterDto,
                                                                    @PageableDefault(page = 0, size = 10, sort = "nomeFantasia") Pageable pageable) {
         Page<EmpresaResponseDto> empresaResponseDtos = empresaService.findAll(empresaFilterDto, pageable)

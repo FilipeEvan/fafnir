@@ -1,8 +1,6 @@
 package br.com.fafnir.estoque.dispositivo.dto;
 
 import br.com.fafnir.estoque.dispositivo.model.DispositivoModel;
-import br.com.fafnir.estoque.lancamento.model.LancamentoModel;
-import br.com.fafnir.estoque.lancamento.model.TipoLancamento;
 import jakarta.validation.constraints.*;
 import org.springframework.beans.BeanUtils;
 
@@ -11,7 +9,6 @@ import java.util.UUID;
 
 public record DispositivoRequestDto(
 
-        @NotNull(message = "A empresa é obrigatória.")
         UUID empresaId,
 
         UUID produtoId,

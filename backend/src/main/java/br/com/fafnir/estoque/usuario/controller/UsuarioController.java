@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -25,6 +26,7 @@ public class UsuarioController {
     }
 
     @GetMapping(version = "v1")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMINISTRADOR', 'SCOPE_EDITOR', 'SCOPE_LEITOR')")
     public ResponseEntity<Page<UsuarioResponseDto>> getAllUsuarios(UsuarioFilterDto usuarioFilterDto,
                                                                    @PageableDefault(page = 0, size = 10, sort = "nomeCompleto") Pageable pageable) {
         Page<UsuarioResponseDto> usuarioResponseDtos = usuarioService.findAll(usuarioFilterDto, pageable)
@@ -33,18 +35,21 @@ public class UsuarioController {
     }
 
     @GetMapping(value = "/{id}", version = "v1")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMINISTRADOR', 'SCOPE_EDITOR', 'SCOPE_LEITOR')")
     public ResponseEntity<UsuarioResponseDto> getOneUsuario(@PathVariable(value = "id") UUID id) {
         UsuarioResponseDto usuarioResponseDto = UsuarioResponseDto.fromModel(usuarioService.findById(id));
         return ResponseEntity.status(HttpStatus.OK).body(usuarioResponseDto);
     }
 
     @PostMapping(version = "v1")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMINISTRADOR', 'SCOPE_EDITOR')")
     public ResponseEntity<UsuarioResponseDto> saveUsuario(@RequestBody @Valid UsuarioRequestDto usuarioRequestDto) {
         UsuarioResponseDto usuarioResponseDto = UsuarioResponseDto.fromModel(usuarioService.save(usuarioRequestDto));
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioResponseDto);
     }
 
     @PutMapping(value = "/{id}", version = "v1")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMINISTRADOR', 'SCOPE_EDITOR')")
     public ResponseEntity<UsuarioResponseDto> updateUsuario(@PathVariable(value = "id") UUID id,
                                                             @RequestBody @Valid UsuarioRequestDto usuarioRequestDto) {
         UsuarioResponseDto usuarioResponseDto = UsuarioResponseDto.fromModel(usuarioService.update(id, usuarioRequestDto));
@@ -52,6 +57,7 @@ public class UsuarioController {
     }
 
     @DeleteMapping(value = "/{id}", version = "v1")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMINISTRADOR', 'SCOPE_EDITOR')")
     public ResponseEntity<Void> deleteUsuario(@PathVariable(value = "id") UUID id) {
         usuarioService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

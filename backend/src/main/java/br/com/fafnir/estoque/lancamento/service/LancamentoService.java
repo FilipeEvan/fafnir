@@ -1,5 +1,6 @@
 package br.com.fafnir.estoque.lancamento.service;
 
+import br.com.fafnir.estoque.config.TenantContext;
 import br.com.fafnir.estoque.dispositivo.model.DispositivoModel;
 import br.com.fafnir.estoque.dispositivo.service.DispositivoService;
 import br.com.fafnir.estoque.empresa.model.EmpresaModel;
@@ -17,6 +18,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,13 +52,18 @@ public class LancamentoService {
 
     @Transactional(readOnly = true)
     public LancamentoModel findById(UUID id) {
-        return lancamentoRepository.findById(id)
+        LancamentoModel lancamentoModel = lancamentoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Lançamento não encontrado."));
+
+        TenantContext.validateTenantAccess(lancamentoModel.getEmpresa().getId());
+
+        return lancamentoModel;
     }
 
     @Transactional
     public LancamentoModel save(LancamentoRequestDto lancamentoRequestDto) {
-        EmpresaModel empresaModel = empresaService.findById(lancamentoRequestDto.empresaId());
+        UUID empresaId = resolveAndValidateEmpresaId(lancamentoRequestDto.empresaId());
+        EmpresaModel empresaModel = empresaService.findById(empresaId);
         ProdutoModel produtoModel = produtoService.findById(lancamentoRequestDto.produtoId());
         DispositivoModel dispositivoModel = dispositivoService.findById(lancamentoRequestDto.dispositivoId());
 
@@ -77,7 +84,9 @@ public class LancamentoService {
     public LancamentoModel update(UUID id, LancamentoRequestDto lancamentoRequestDto) {
         LancamentoModel lancamentoModel = findById(id);
 
-        EmpresaModel empresaModel = empresaService.findById(lancamentoRequestDto.empresaId());
+        UUID empresaId = resolveAndValidateEmpresaId(lancamentoRequestDto.empresaId());
+
+        EmpresaModel empresaModel = empresaService.findById(empresaId);
         ProdutoModel produtoModel = produtoService.findById(lancamentoRequestDto.produtoId());
         DispositivoModel dispositivoModel = dispositivoService.findById(lancamentoRequestDto.dispositivoId());
 
@@ -98,5 +107,21 @@ public class LancamentoService {
     public void delete(UUID id) {
         LancamentoModel lancamentoModel = findById(id);
         lancamentoRepository.delete(lancamentoModel);
+    }
+
+    private UUID resolveAndValidateEmpresaId(UUID empresaId) {
+        if (TenantContext.isSuperAdmin()) {
+            return empresaId != null ? empresaId : TenantContext.getTenantId();
+        } else {
+            if (empresaId != null) {
+                throw new AccessDeniedException("Apenas administradores podem definir a empresa no corpo da requisição.");
+            }
+
+            UUID tenantId = TenantContext.getTenantId();
+            if (tenantId == null) {
+                throw new IllegalStateException("Empresa não encontrada no contexto da requisição.");
+            }
+            return tenantId;
+        }
     }
 }

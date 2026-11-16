@@ -1,5 +1,6 @@
 package br.com.fafnir.estoque.dispositivo.service;
 
+import br.com.fafnir.estoque.config.TenantContext;
 import br.com.fafnir.estoque.dispositivo.dto.DispositivoFilterDto;
 import br.com.fafnir.estoque.dispositivo.dto.DispositivoRequestDto;
 import br.com.fafnir.estoque.dispositivo.model.DispositivoModel;
@@ -15,6 +16,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,13 +44,18 @@ public class DispositivoService {
 
     @Transactional(readOnly = true)
     public DispositivoModel findById(UUID id) {
-        return dispositivoRepository.findById(id)
+        DispositivoModel dispositivoModel = dispositivoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Dispositivo não encontrado."));
+
+        TenantContext.validateTenantAccess(dispositivoModel.getEmpresa().getId());
+
+        return dispositivoModel;
     }
 
     @Transactional
     public DispositivoModel save(DispositivoRequestDto dispositivoRequestDto) {
-        EmpresaModel empresaModel = empresaService.findById(dispositivoRequestDto.empresaId());
+        UUID empresaId = resolveAndValidateEmpresaId(dispositivoRequestDto.empresaId());
+        EmpresaModel empresaModel = empresaService.findById(empresaId);
 
         if (dispositivoRepository.existsByIdentificador(dispositivoRequestDto.identificador())) {
             throw new EntityExistsException("Dispositivo já cadastrado.");
@@ -70,11 +77,13 @@ public class DispositivoService {
     public DispositivoModel update(UUID id, DispositivoRequestDto dispositivoRequestDto) {
         DispositivoModel dispositivoModel = findById(id);
 
+        UUID empresaId = resolveAndValidateEmpresaId(dispositivoRequestDto.empresaId());
+
         if (dispositivoRepository.existsByIdentificadorAndIdNot(dispositivoRequestDto.identificador(), id)) {
             throw new EntityExistsException("Dispositivo já cadastrado.");
         }
 
-        EmpresaModel empresaModel = empresaService.findById(dispositivoRequestDto.empresaId());
+        EmpresaModel empresaModel = empresaService.findById(empresaId);
         ProdutoModel produtoModel = dispositivoRequestDto.produtoId() != null
                 ? produtoService.findById(dispositivoRequestDto.produtoId())
                 : null;
@@ -90,5 +99,21 @@ public class DispositivoService {
     public void delete(UUID id) {
         DispositivoModel dispositivoModel = findById(id);
         dispositivoRepository.delete(dispositivoModel);
+    }
+
+    private UUID resolveAndValidateEmpresaId(UUID empresaId) {
+        if (TenantContext.isSuperAdmin()) {
+            return empresaId != null ? empresaId : TenantContext.getTenantId();
+        } else {
+            if (empresaId != null) {
+                throw new AccessDeniedException("Apenas administradores podem definir a empresa no corpo da requisição.");
+            }
+
+            UUID tenantId = TenantContext.getTenantId();
+            if (tenantId == null) {
+                throw new IllegalStateException("Empresa não encontrada no contexto da requisição.");
+            }
+            return tenantId;
+        }
     }
 }

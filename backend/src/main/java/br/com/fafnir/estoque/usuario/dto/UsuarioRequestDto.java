@@ -9,7 +9,6 @@ import java.util.UUID;
 
 public record UsuarioRequestDto(
 
-        @NotNull(message = "A empresa é obrigatória.")
         UUID empresaId,
 
         @NotNull(message = "O papel de usuário é obrigatório.")

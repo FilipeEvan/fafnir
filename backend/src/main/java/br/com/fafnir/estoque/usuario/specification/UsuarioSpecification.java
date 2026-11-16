@@ -1,5 +1,6 @@
 package br.com.fafnir.estoque.usuario.specification;
 
+import br.com.fafnir.estoque.config.TenantContext;
 import br.com.fafnir.estoque.usuario.dto.UsuarioFilterDto;
 import br.com.fafnir.estoque.usuario.model.PapelUsuario;
 import br.com.fafnir.estoque.usuario.model.SituacaoUsuario;
@@ -12,14 +13,27 @@ public class UsuarioSpecification {
     }
 
     public static Specification<UsuarioModel> getSpecification(UsuarioFilterDto usuarioFilterDto) {
-        if (usuarioFilterDto == null) {
-            return Specification.unrestricted();
+        Specification<UsuarioModel> specification = Specification.<UsuarioModel>unrestricted()
+                .and(tenantEquals());
+
+        if (usuarioFilterDto != null) {
+            specification = specification
+                    .and(papelEquals(usuarioFilterDto.papel()))
+                    .and(situacaoEquals(usuarioFilterDto.situacao()))
+                    .and(nomeCompletoContains(usuarioFilterDto.nomeCompleto()))
+                    .and(emailContains(usuarioFilterDto.email()));
         }
-        return Specification.<UsuarioModel>unrestricted()
-                .and(papelEquals(usuarioFilterDto.papel()))
-                .and(situacaoEquals(usuarioFilterDto.situacao()))
-                .and(nomeCompletoContains(usuarioFilterDto.nomeCompleto()))
-                .and(emailContains(usuarioFilterDto.email()));
+
+        return specification;
+    }
+
+    private static Specification<UsuarioModel> tenantEquals() {
+        return (root, query, cb) -> {
+            if (TenantContext.isSuperAdmin()) {
+                return null;
+            }
+            return cb.equal(root.get("empresa").get("id"), TenantContext.getTenantId());
+        };
     }
 
     private static  Specification<UsuarioModel> papelEquals(String papel) {
@@ -33,7 +47,6 @@ public class UsuarioSpecification {
             } catch (IllegalArgumentException e) {
                 return null;
             }
-
         };
     }
 

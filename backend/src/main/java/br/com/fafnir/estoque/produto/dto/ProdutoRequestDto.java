@@ -13,7 +13,6 @@ import java.util.UUID;
 
 public record ProdutoRequestDto(
 
-        @NotNull(message = "A empresa é obrigatória.")
         UUID empresaId,
 
         @NotBlank(message = "O nome é obrigatório.")

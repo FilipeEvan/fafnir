@@ -1,5 +1,6 @@
 package br.com.fafnir.estoque.produto.service;
 
+import br.com.fafnir.estoque.config.TenantContext;
 import br.com.fafnir.estoque.empresa.model.EmpresaModel;
 import br.com.fafnir.estoque.empresa.service.EmpresaService;
 import br.com.fafnir.estoque.produto.dto.ProdutoFilterDto;
@@ -12,6 +13,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,13 +38,18 @@ public class ProdutoService {
 
     @Transactional(readOnly = true)
     public ProdutoModel findById(UUID id) {
-        return produtoRepository.findById(id)
+        ProdutoModel produtoModel = produtoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado."));
+
+        TenantContext.validateTenantAccess(produtoModel.getEmpresa().getId());
+
+        return produtoModel;
     }
 
     @Transactional
     public ProdutoModel save(ProdutoRequestDto produtoRequestDto) {
-        EmpresaModel empresaModel = empresaService.findById(produtoRequestDto.empresaId());
+        UUID empresaId = resolveAndValidateEmpresaId(produtoRequestDto.empresaId());
+        EmpresaModel empresaModel = empresaService.findById(empresaId);
 
         if (produtoRepository.existsByNomeIgnoreCaseAndMarcaIgnoreCaseAndEmpresaId(produtoRequestDto.nome(), produtoRequestDto.marca(), produtoRequestDto.empresaId())) {
             throw new EntityExistsException("Produto já cadastrado.");
@@ -58,11 +65,13 @@ public class ProdutoService {
     public ProdutoModel update(UUID id, ProdutoRequestDto produtoRequestDto) {
         ProdutoModel produtoModel = findById(id);
 
+        UUID empresaId = resolveAndValidateEmpresaId(produtoRequestDto.empresaId());
+
         if (produtoRepository.existsByNomeIgnoreCaseAndMarcaIgnoreCaseAndEmpresaIdAndIdNot(produtoRequestDto.nome(), produtoRequestDto.marca(), produtoRequestDto.empresaId(), id)) {
             throw new EntityExistsException("Produto já cadastrado.");
         }
 
-        EmpresaModel  empresaModel = empresaService.findById(produtoRequestDto.empresaId());
+        EmpresaModel  empresaModel = empresaService.findById(empresaId);
         BeanUtils.copyProperties(produtoRequestDto, produtoModel);
         produtoModel.setEmpresa(empresaModel);
 
@@ -73,5 +82,21 @@ public class ProdutoService {
     public void delete(UUID id) {
         ProdutoModel produtoModel = findById(id);
         produtoRepository.delete(produtoModel);
+    }
+
+    private UUID resolveAndValidateEmpresaId(UUID empresaId) {
+        if (TenantContext.isSuperAdmin()) {
+            return empresaId != null ? empresaId : TenantContext.getTenantId();
+        } else {
+            if (empresaId != null) {
+                throw new AccessDeniedException("Apenas administradores podem definir a empresa no corpo da requisição.");
+            }
+
+            UUID tenantId = TenantContext.getTenantId();
+            if (tenantId == null) {
+                throw new IllegalStateException("Empresa não encontrada no contexto da requisição.");
+            }
+            return tenantId;
+        }
     }
 }

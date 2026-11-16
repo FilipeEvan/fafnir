@@ -12,7 +12,6 @@ import java.util.UUID;
 
 public record LancamentoRequestDto(
 
-        @NotNull(message = "A empresa é obrigatória.")
         UUID empresaId,
 
         @NotNull(message = "O produto é obrigatório.")
