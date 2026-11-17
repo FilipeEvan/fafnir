@@ -6,10 +6,6 @@ target/
 .git/
 .gitignore
 
-### Docker ###
-Dockerfile
-.dockerignore
-
 ### STS ###
 .classpath
 .project
