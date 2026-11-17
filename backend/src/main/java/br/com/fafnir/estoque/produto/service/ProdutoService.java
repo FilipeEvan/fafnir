@@ -51,7 +51,7 @@ public class ProdutoService {
         UUID empresaId = resolveAndValidateEmpresaId(produtoRequestDto.empresaId());
         EmpresaModel empresaModel = empresaService.findById(empresaId);
 
-        if (produtoRepository.existsByNomeIgnoreCaseAndMarcaIgnoreCaseAndEmpresaId(produtoRequestDto.nome(), produtoRequestDto.marca(), produtoRequestDto.empresaId())) {
+        if (produtoRepository.existsByNomeIgnoreCaseAndMarcaIgnoreCaseAndEmpresaId(produtoRequestDto.nome(), produtoRequestDto.marca(), empresaId)) {
             throw new EntityExistsException("Produto já cadastrado.");
         }
 
@@ -67,7 +67,7 @@ public class ProdutoService {
 
         UUID empresaId = resolveAndValidateEmpresaId(produtoRequestDto.empresaId());
 
-        if (produtoRepository.existsByNomeIgnoreCaseAndMarcaIgnoreCaseAndEmpresaIdAndIdNot(produtoRequestDto.nome(), produtoRequestDto.marca(), produtoRequestDto.empresaId(), id)) {
+        if (produtoRepository.existsByNomeIgnoreCaseAndMarcaIgnoreCaseAndEmpresaIdAndIdNot(produtoRequestDto.nome(), produtoRequestDto.marca(), empresaId, id)) {
             throw new EntityExistsException("Produto já cadastrado.");
         }
 
